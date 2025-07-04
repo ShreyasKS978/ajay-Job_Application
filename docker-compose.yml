@@ -1,0 +1,63 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres-ajay
+    ports:
+      - "6609:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: new_employee_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+
+  backend:
+    build: ./Backend
+    container_name: backend-ajay
+    ports:
+      - "3049:3049"
+    depends_on:
+      - postgres
+    environment:
+      PG_HOST: postgres
+      DB_USER: postgres
+      DB_PASSWORD: admin123
+      DB_PORT: 5432
+      DB_NAME: new_employee_db
+      PORT: 3049
+    restart: unless-stopped
+
+  frontend:
+    build: ./Frontend
+    container_name: frontend-ajay
+    ports:
+      - "8158:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  hr_page:
+    build: ./HR_Page
+    container_name: hrpage-ajay
+    ports:
+      - "8159:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  offerletter:
+    build: ./offerletter
+    container_name: offerletter-ajay
+    ports:
+      - "8160:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+
